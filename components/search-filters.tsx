@@ -29,6 +29,13 @@ export default function SearchFilters() {
     return () => clearTimeout(timer)
   }, [searchTerm, searchCountries])
 
+  useEffect(() => {
+    // When component mounts, ensure filters are reset to show all countries
+    if (activeFilters.length === 0) {
+      resetFilters()
+    }
+  }, [resetFilters])
+
   const handleRegionChange = (value: string) => {
     setSelectedRegion(value)
     filterByRegion(value)
@@ -120,16 +127,16 @@ export default function SearchFilters() {
           <Label htmlFor="region-filter" className="sr-only">
             Filter by Region
           </Label>
-          <Select value={selectedRegion || "all"} onValueChange={handleRegionChange}>
+          <Select value={selectedRegion} onValueChange={handleRegionChange}>
             <SelectTrigger id="region-filter">
               <SelectValue placeholder="Filter by Region" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Regions</SelectItem>
               {regions.map((region) => (
-          <SelectItem key={region} value={region}>
-            {region}
-          </SelectItem>
+                <SelectItem key={region} value={region}>
+                  {region}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

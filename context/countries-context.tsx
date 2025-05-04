@@ -43,6 +43,7 @@ export function CountriesProvider({ children }: { children: ReactNode }) {
       setError(null)
       const data = await getAllCountries()
       setCountries(data)
+      // Reset filtered countries to show all countries initially
       setFilteredCountries([])
     } catch (err) {
       setError("Failed to fetch countries")
