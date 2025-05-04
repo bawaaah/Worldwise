@@ -11,8 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
 
 export default function SearchFilters() {
-  const { countries, searchCountries, filterByRegion, filterByLanguage, regions, languages, resetFilters } =
-    useCountries()
+  const { searchCountries, filterByRegion, filterByLanguage, regions, languages, resetFilters } = useCountries()
 
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRegion, setSelectedRegion] = useState("")
@@ -29,23 +28,18 @@ export default function SearchFilters() {
     return () => clearTimeout(timer)
   }, [searchTerm, searchCountries])
 
-  useEffect(() => {
-    // When component mounts, ensure filters are reset to show all countries
-    if (activeFilters.length === 0) {
-      resetFilters()
-    }
-  }, [resetFilters])
-
   const handleRegionChange = (value: string) => {
-    setSelectedRegion(value)
-    filterByRegion(value)
-    updateActiveFilters("region", value)
+    const regionValue = value === "all" ? "" : value
+    setSelectedRegion(regionValue)
+    filterByRegion(regionValue)
+    updateActiveFilters("region", regionValue)
   }
 
   const handleLanguageChange = (value: string) => {
-    setSelectedLanguage(value)
-    filterByLanguage(value)
-    updateActiveFilters("language", value)
+    const languageValue = value === "all" ? "" : value
+    setSelectedLanguage(languageValue)
+    filterByLanguage(languageValue)
+    updateActiveFilters("language", languageValue)
   }
 
   const updateActiveFilters = useCallback((type: string, value: string) => {
@@ -53,8 +47,8 @@ export default function SearchFilters() {
       // Remove existing filter of the same type
       const filtered = prev.filter((filter) => !filter.startsWith(`${type}:`))
 
-      // Add new filter if value is not empty or "all"
-      if (value && value !== "all") {
+      // Add new filter if value is not empty
+      if (value) {
         return [...filtered, `${type}:${value}`]
       }
 
@@ -127,7 +121,7 @@ export default function SearchFilters() {
           <Label htmlFor="region-filter" className="sr-only">
             Filter by Region
           </Label>
-          <Select value={selectedRegion} onValueChange={handleRegionChange}>
+          <Select value={selectedRegion || "all"} onValueChange={handleRegionChange}>
             <SelectTrigger id="region-filter">
               <SelectValue placeholder="Filter by Region" />
             </SelectTrigger>
@@ -146,7 +140,7 @@ export default function SearchFilters() {
           <Label htmlFor="language-filter" className="sr-only">
             Filter by Language
           </Label>
-          <Select value={selectedLanguage} onValueChange={handleLanguageChange}>
+          <Select value={selectedLanguage || "all"} onValueChange={handleLanguageChange}>
             <SelectTrigger id="language-filter">
               <SelectValue placeholder="Filter by Language" />
             </SelectTrigger>

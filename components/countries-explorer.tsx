@@ -7,12 +7,15 @@ import SearchFilters from "./search-filters"
 import { motion } from "framer-motion"
 
 export default function CountriesExplorer() {
-  const { countries, filteredCountries, loading, error, fetchAllCountries } = useCountries()
+  const { countries, filteredCountries, loading, error, fetchAllCountries, hasActiveFilters } = useCountries()
 
   useEffect(() => {
     // Fetch countries when component mounts if they're not already loaded
     fetchAllCountries()
   }, [fetchAllCountries])
+
+  // Determine which countries to display
+  const displayCountries = hasActiveFilters ? filteredCountries : countries
 
   return (
     <div>
@@ -34,13 +37,13 @@ export default function CountriesExplorer() {
         <>
           <div className="mb-6 flex justify-between items-center">
             <p className="text-muted-foreground">
-              Showing {filteredCountries.length > 0 ? filteredCountries.length : countries.length} countries
+              Showing {displayCountries.length} {displayCountries.length === 1 ? "country" : "countries"}
             </p>
           </div>
 
-          {filteredCountries.length === 0 && countries.length > 0 ? (
+          {displayCountries.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
-              {countries.map((country, index) => (
+              {displayCountries.map((country, index) => (
                 <motion.div
                   key={country.cca3}
                   initial={{ opacity: 0, y: 20 }}
@@ -51,22 +54,13 @@ export default function CountriesExplorer() {
                 </motion.div>
               ))}
             </div>
-          ) : filteredCountries.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
-              {filteredCountries.map((country, index) => (
-                <motion.div
-                  key={country.cca3}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                >
-                  <CountryCard country={country} />
-                </motion.div>
-              ))}
+          ) : hasActiveFilters ? (
+            <div className="text-center py-12">
+              <p className="text-lg">No countries found matching your search criteria.</p>
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-lg">No countries found matching your search criteria.</p>
+              <p className="text-lg">No countries available. Please try again later.</p>
             </div>
           )}
         </>

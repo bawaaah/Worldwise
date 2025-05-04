@@ -11,6 +11,7 @@ interface CountriesContextType {
   error: string | null
   regions: string[]
   languages: string[]
+  hasActiveFilters: boolean
   fetchAllCountries: () => Promise<void>
   searchCountries: (term: string) => void
   filterByRegion: (region: string) => void
@@ -28,6 +29,7 @@ export function CountriesProvider({ children }: { children: ReactNode }) {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedRegion, setSelectedRegion] = useState("")
   const [selectedLanguage, setSelectedLanguage] = useState("")
+  const [hasActiveFilters, setHasActiveFilters] = useState(false)
 
   // Extract unique regions from countries
   const regions = [...new Set(countries.map((country) => country.region))].filter(Boolean).sort()
@@ -45,6 +47,7 @@ export function CountriesProvider({ children }: { children: ReactNode }) {
       setCountries(data)
       // Reset filtered countries to show all countries initially
       setFilteredCountries([])
+      setHasActiveFilters(false)
     } catch (err) {
       setError("Failed to fetch countries")
       console.error(err)
@@ -82,9 +85,20 @@ export function CountriesProvider({ children }: { children: ReactNode }) {
     setSelectedRegion("")
     setSelectedLanguage("")
     setFilteredCountries([])
+    setHasActiveFilters(false)
   }, [])
 
   const applyFilters = (term: string, region: string, language: string) => {
+    // Check if any filters are active
+    const isFilterActive = !!(term || (region && region !== "all") || (language && language !== "all"))
+    setHasActiveFilters(isFilterActive)
+
+    // If no filters are active, reset to show all countries
+    if (!isFilterActive) {
+      setFilteredCountries([])
+      return
+    }
+
     let filtered = [...countries]
 
     // Apply search term filter
@@ -121,6 +135,7 @@ export function CountriesProvider({ children }: { children: ReactNode }) {
         error,
         regions,
         languages,
+        hasActiveFilters,
         fetchAllCountries,
         searchCountries,
         filterByRegion,
